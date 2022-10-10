@@ -1,4 +1,5 @@
 const { comparePassword } = require('../helper/bcrypt');
+const { generateToken } = require('../helper/jwt');
 const { User } = require('../models/');
 
 class UserController {
@@ -45,14 +46,25 @@ class UserController {
             if (dataLogin) {
                 const isCorrect = comparePassword(password, dataLogin.password);
                 if (isCorrect) {
-                    return res.json({
-                        message: 'BISA NIH'
+                    const token = generateToken({
+                        id: dataLogin.id,
+                        email: dataLogin.email
+                    });
+                    return res.status(200).json({
+                        token: token
+                    })
+                } else {
+                    return res.status(500).json({
+                        message: 'Password is wrong!'
                     })
                 }
-
+            } else {
+                return res.status(500).json({
+                    message: 'Data user not found!'
+                })
             }
         } catch (error) {
-
+            return res.status(500).json(error)
         }
     }
 }
